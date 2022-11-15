@@ -22,6 +22,7 @@ pipeline {
     stage("Prepare environment") {
       steps {
         echo '-=- prepare build environment -=-'
+        sh 'java -version'
       }
     }
     stage("Compile") {
