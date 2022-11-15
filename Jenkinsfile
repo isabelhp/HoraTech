@@ -15,6 +15,23 @@ pipeline {
                 - sleep
               args:
                 - infinity
+            - name: podman
+              image: quay.io/containers/podman:v4.2.0
+              command:
+                - sleep
+              args:
+                - infinity
+              securityContext:
+                runAsUser: 0
+                privileged: true
+            - name: aks
+              image: acrdvpsplatformdev.azurecr.io/devops-platform-image:v0.0.5
+              command:
+                - sleep
+              args:
+                - infinity
+          imagePullSecrets:
+            - name: master-acr-credentials
       '''
     }
   }
