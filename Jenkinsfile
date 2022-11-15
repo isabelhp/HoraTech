@@ -64,10 +64,10 @@ pipeline {
         echo '-=- promote container image -=-'
       }
     }
-    post{
-      always{
-        echo '-=- cleaning up resources -=-'
-      }
+  }
+  post{
+    always{
+      echo '-=- cleaning up resources -=-'
     }
   }
 }
