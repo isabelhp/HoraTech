@@ -1,6 +1,3 @@
-#!groovy
-@Library('Librerias') _
-
 pipeline {
   agent {
     kubernetes {
