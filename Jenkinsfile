@@ -24,6 +24,14 @@ pipeline {
               securityContext:
                 runAsUser: 0
                 privileged: true
+            - name: aks
+              image: acrdvpsplatformdev.azurecr.io/devops-platform-image:v0.0.5
+              command:
+                - sleep
+              args:
+                - infinity
+          imagePullSecrets:
+            - name: master-acr-credentials
       '''
     }
   }
@@ -32,6 +40,26 @@ pipeline {
       steps {
         echo '-=- prepare build environment -=-'
         sh 'java -version'
+        container('podman'){
+          sh 'podman --version'
+        }
+        container('aks'){
+          withCredentials([
+            usernamePassword(
+              credentialsId: 'sp-terraform-credentials',
+              usernameVariable: 'ADD_SERVICE_PRINCIPAL_CLIENT_ID',
+              passwordVariable: 'ADD_SERVICE_PRINCIPAL_CLIENT_SECRET',
+              string(credentialsId: 'aks-tenant', variable: 'AKS_TENANT'),
+              string(credentialsId: 'aks-resource-group', variable: 'AKS_RESOURCE_GROUP'),
+              string(credentialsId: 'aks-name', variable: 'AKS_NAME')
+            )
+          ]) {
+            sh "az login --service-principal --username ${ADD_SERVICE_PRINCIPAL_CLIENT_ID} --password ${ADD_SERVICE_PRINCIPAL_CLIENT_SECRET} --tenant ${AKS_TENANT}"
+            sh "az aks get-credentials --resource-group ${AKS_RESOURCE_GROUP} --name ${AKS_NAME}"
+            sh 'kubelogin convert-kubeconfig -l spn'
+            sh 'kubectl version'
+          }
+        }
       }
     }
     stage("Compile") {
